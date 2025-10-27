@@ -1,0 +1,143 @@
+import pygame
+from singleton import Singleton
+
+
+class Navbar:
+    def __init__(self, width, height) -> None:
+        self.width = width
+        self.height = height
+        self.surf = pygame.Surface((width, 36))
+        self.rect = self.surf.get_frect(topleft=(0, 0))
+        self.font = pygame.font.Font("consolas.ttf", 26)
+
+    def draw(self, screen, player):
+        self.surf.fill("grey")
+        text = self.font.render(str(player.points), True, "black")
+        text_rect = text.get_frect(topright=(self.width - 5, 5))
+        self.surf.blit(text, text_rect)
+        screen.blit(self.surf)
+
+
+class Button:
+    def __init__(self, pos, width, height, color="blue", text="") -> None:
+        self.surf = pygame.Surface((width, height))
+        self.color = color
+        self.text = text
+        self.font = pygame.font.Font("consolas.ttf", 16)
+        self.r_text = self.font.render(self.text, True, "black")
+        self.r_text_rect = self.r_text.get_frect(topleft=(5, 3))
+        self.rect = self.surf.get_frect(topleft=pos)
+
+    def draw(self, screen):
+        self.surf.fill(self.color)
+        self.surf.blit(self.r_text, self.r_text_rect)
+        screen.blit(self.surf, self.rect)
+
+
+def pozycja_myszy_na_surface(mouse_pos, origin):
+    return (
+        mouse_pos[0] - origin[0],
+        mouse_pos[1] - origin[1],
+    )
+
+
+class rButton(Button):
+    def __init__(self, bet, pos, width, height, color="blue", text="") -> None:
+        super().__init__(pos, width, height, color, text)
+        self.bet = bet
+        self.rect = self.surf.get_frect(topright=pos)
+
+
+class lButton(Button):
+    def __init__(self, bet, pos, width, height, color="blue", text="") -> None:
+        super().__init__(pos, width, height, color, text)
+        self.bet = bet
+        self.rect = self.surf.get_frect(topleft=pos)
+
+
+class Input:
+    def __init__(self, width, height, pos, color, font_color, message):
+        self.surf = pygame.Surface((width, height))
+        self.rect = self.surf.get_frect(topleft=pos)
+        self.surf.fill(color)
+        self.color = color
+        self.font = pygame.font.Font("consolas.ttf", 20)
+        self.font_color = font_color
+        self.message = message
+        self._display = message
+        self.active = False
+
+    @property
+    def display(self):
+        return self._display
+
+    @display.setter
+    def display(self, value):
+
+        self._display = value
+        self.surf.fill(self.color)
+        text = self.font.render(self.display, True, self.font_color)
+        text_rect = text.get_rect(topleft=(5, 5))
+        self.surf.blit(text, text_rect)
+
+    def update(self, event, mouse_pos):
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            if self.rect.collidepoint(mouse_pos):
+                self.active = True
+            else:
+                self.active = False
+        elif event.type == pygame.KEYDOWN and self.active:
+            if event.key == pygame.K_BACKSPACE:
+                self.display = self.display[:-1]
+            else:
+                self.display += event.unicode
+
+    def draw(self, screen):
+        self.surf.fill(self.color)
+        if self.active:
+            pygame.draw.rect(self.surf, "black", self.surf.get_rect(), 2)
+            if self.display == self.message:
+                self.display = ""
+        elif not self.active and self.display == "":
+            self.display = self.message
+        text = self.font.render(self.display, True, self.font_color)
+        text_rect = text.get_rect(topleft=(5, 5))
+        self.surf.blit(text, text_rect)
+        screen.blit(self.surf, self.rect)
+
+
+class Pop_up(metaclass=Singleton):
+    bet: int = 0
+
+    def __init__(self) -> None:
+        if hasattr(self, "_initialized"):
+            return
+        self.show = False
+        self.width = 300
+        self.height = 100
+        self.surf = pygame.Surface((self.width, self.height))
+        self.rect = self.surf.get_frect(center=(300, 350))
+        self.input = Input(
+            self.width - 10, 50, (5, 5), "grey", "black", "Start betting"
+        )
+        self.confirm_button = Button(
+            (5, self.height - 30), self.width - 10, 30, "blue", "Confirm"
+        )
+
+    def draw(self, screen):
+        if not self.show:
+            return
+        self.surf.fill("white")
+        self.input.draw(self.surf)
+        self.confirm_button.draw(self.surf)
+        screen.blit(self.surf, self.rect)
+
+    def event(self, mouse_pos, player):
+        if self.rect.collidepoint(mouse_pos):
+            mouse_pos = pozycja_myszy_na_surface(mouse_pos, (self.rect.x, self.rect.y))
+            if self.confirm_button.rect.collidepoint(mouse_pos):
+                print("click")
+                self.show = False
+                player.points -= Pop_up.bet
+        else:
+            self.show = False
