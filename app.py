@@ -31,6 +31,17 @@ class App:
         self.fight_cards = pygame.sprite.Group()
         self.update_fight_cards()
         self.pop_up = Pop_up()
+        self.pop_up.bets = self.group(self.file_data[1:])
+
+    def group(self, data):
+        bets = []
+        print(data)
+        for idx in range(0, len(data), 2):
+            bet = dict()
+            bet["value"] = data[idx]
+            bet["fighter"] = data[idx + 1]
+            bets.append(bet)
+        return bets
 
     @property
     def offset(self):
@@ -48,13 +59,14 @@ class App:
     def get_data_from_file(self):
         try:
             f = open(self.url, "r")
-            self.file_data = f.read().split(" ")
+            self.file_data = f.read().split("|")[:-1]
             f.close()
         except:
             f = open(self.url, "w+")
-            f.write("1000")
+            f.write("1000|")
+            self.file_data = [1000]
             f.close()
-        self.player = Player(int(self.file_data[0]))
+        self.player = Player(float(self.file_data[0]))
 
     def run(self):
         while True:
@@ -82,10 +94,9 @@ class App:
                     self.offset -= self.scroll_speed
                 elif event.y == 1:
                     self.offset += self.scroll_speed
+            mouse_pos = pygame.mouse.get_pos()
+            self.pop_up.event(event, mouse_pos, self.player)
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                mouse_pos = pygame.mouse.get_pos()
-                self.pop_up.event(mouse_pos, self.player)
-                print("clikc")
                 if self.fights_box_rect.collidepoint(mouse_pos):
                     mouse_pos = pozycja_myszy_na_surface(mouse_pos, (0, 36))
                     mouse_pos = pozycja_myszy_na_surface(mouse_pos, (0, self.offset))
@@ -96,6 +107,12 @@ class App:
     def save_to_file(self):
         with open(self.url, "w+") as f:
             f.write(str(self.player.points))
+            f.write("|")
+            for bet in self.pop_up.bets:
+                f.write(str(bet["value"]))
+                f.write("|")
+                f.write(bet["fighter"])
+                f.write("|")
 
     def update_fight_cards(self):
         for id, fight in enumerate(self.fights):

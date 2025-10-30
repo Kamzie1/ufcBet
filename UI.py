@@ -1,5 +1,6 @@
 import pygame
 from singleton import Singleton
+from utils import is_number
 
 
 class Navbar:
@@ -20,6 +21,8 @@ class Navbar:
 
 class Button:
     def __init__(self, pos, width, height, color="blue", text="") -> None:
+        self.width = width
+        self.height = height
         self.surf = pygame.Surface((width, height))
         self.color = color
         self.text = text
@@ -55,13 +58,23 @@ class lButton(Button):
         self.rect = self.surf.get_frect(topleft=pos)
 
 
+class cButton(Button):
+    def __init__(self, pos, width, height, color="blue", text="") -> None:
+        super().__init__(pos, width, height, color, text)
+        self.rect = self.surf.get_frect(topleft=pos)
+        self.r_text_rect = self.r_text.get_frect(
+            center=(self.width / 2, self.height / 2)
+        )
+        self.font = pygame.font.Font("consolas.ttf", 26)
+
+
 class Input:
     def __init__(self, width, height, pos, color, font_color, message):
         self.surf = pygame.Surface((width, height))
         self.rect = self.surf.get_frect(topleft=pos)
         self.surf.fill(color)
         self.color = color
-        self.font = pygame.font.Font("consolas.ttf", 20)
+        self.font = pygame.font.Font("consolas.ttf", 30)
         self.font_color = font_color
         self.message = message
         self._display = message
@@ -107,22 +120,23 @@ class Input:
 
 
 class Pop_up(metaclass=Singleton):
-    bet: int = 0
-
     def __init__(self) -> None:
         if hasattr(self, "_initialized"):
             return
-        self.show = False
+        self._show = False
         self.width = 300
         self.height = 100
         self.surf = pygame.Surface((self.width, self.height))
         self.rect = self.surf.get_frect(center=(300, 350))
         self.input = Input(
-            self.width - 10, 50, (5, 5), "grey", "black", "Start betting"
+            self.width - 10, 50, (5, 0), "grey", "black", "Start betting"
         )
-        self.confirm_button = Button(
+        self.confirm_button = cButton(
             (5, self.height - 30), self.width - 10, 30, "blue", "Confirm"
         )
+        self.bets = list()
+        self.bet = 0
+        self.fighter = ""
 
     def draw(self, screen):
         if not self.show:
@@ -131,13 +145,31 @@ class Pop_up(metaclass=Singleton):
         self.input.draw(self.surf)
         self.confirm_button.draw(self.surf)
         screen.blit(self.surf, self.rect)
+        pygame.draw.rect(screen, "black", self.rect, 1)
 
-    def event(self, mouse_pos, player):
+    @property
+    def show(self):
+        return self._show
+
+    @show.setter
+    def show(self, value):
+        self._show = value
+        self.input._display = self.input.message
+
+    def event(self, event, mouse_pos, player):
         if self.rect.collidepoint(mouse_pos):
             mouse_pos = pozycja_myszy_na_surface(mouse_pos, (self.rect.x, self.rect.y))
-            if self.confirm_button.rect.collidepoint(mouse_pos):
-                print("click")
-                self.show = False
-                player.points -= Pop_up.bet
-        else:
+            self.input.update(event, mouse_pos)
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                if self.confirm_button.rect.collidepoint(mouse_pos):
+                    print("click")
+                    if is_number(self.input.display):
+                        value = float(self.input.display)
+                        player.points -= value
+                        bet = {"value": value * self.bet / 100, "fighter": self.fighter}
+                        self.bets.append(bet)
+                        self.show = False
+                        print(self.bets)
+
+        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self.show = False

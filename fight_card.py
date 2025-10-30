@@ -45,8 +45,10 @@ class Fight_Card(pygame.sprite.Sprite):
         if self.button1.rect.collidepoint(mouse_pos):
             pop_up = Pop_up()
             pop_up.show = True
-            Pop_up.bet = int(self.bet1)
+            pop_up.fighter = self.fighter1
+            pop_up.bet = int(self.bet1)
         elif self.button2.rect.collidepoint(mouse_pos):
             pop_up = Pop_up()
-            Pop_up.bet = int(self.bet2)
+            pop_up.bet = int(self.bet2)
+            pop_up.fighter = self.fighter2
             pop_up.show = True
