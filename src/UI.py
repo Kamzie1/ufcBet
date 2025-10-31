@@ -1,6 +1,6 @@
 import pygame
-from singleton import Singleton
-from utils import is_number
+from src.singleton import Singleton
+from src.utils import is_number
 
 
 class Navbar:
@@ -9,7 +9,7 @@ class Navbar:
         self.height = height
         self.surf = pygame.Surface((width, 36))
         self.rect = self.surf.get_frect(topleft=(0, 0))
-        self.font = pygame.font.Font("consolas.ttf", 26)
+        self.font = pygame.font.Font("src/consolas.ttf", 26)
         self.show_bets = False
         self.fights_button = Button((5, 5), 100, 26, "blue", "Fights")
         self.bets_button = Button((110, 5), 100, 26, "red", "Bets")
@@ -38,7 +38,7 @@ class Button:
         self.surf = pygame.Surface((width, height))
         self.color = color
         self.text = text
-        self.font = pygame.font.Font("consolas.ttf", 16)
+        self.font = pygame.font.Font("src/consolas.ttf", 16)
         self.r_text = self.font.render(self.text, True, "black")
         self.r_text_rect = self.r_text.get_frect(topleft=(5, 3))
         self.rect = self.surf.get_frect(topleft=pos)
@@ -77,7 +77,7 @@ class cButton(Button):
         self.r_text_rect = self.r_text.get_frect(
             center=(self.width / 2, self.height / 2)
         )
-        self.font = pygame.font.Font("consolas.ttf", 26)
+        self.font = pygame.font.Font("src/consolas.ttf", 26)
 
 
 class Input:
@@ -86,7 +86,7 @@ class Input:
         self.rect = self.surf.get_frect(topleft=pos)
         self.surf.fill(color)
         self.color = color
-        self.font = pygame.font.Font("consolas.ttf", 30)
+        self.font = pygame.font.Font("src/consolas.ttf", 30)
         self.font_color = font_color
         self.message = message
         self._display = message
@@ -148,6 +148,8 @@ class Pop_up(metaclass=Singleton):
         )
         self.bets = list()
         self.bet = 0
+        self.fight_id = 0
+        self.fighter_id = 0
         self.fighter = ""
 
     def draw(self, screen):
@@ -178,7 +180,12 @@ class Pop_up(metaclass=Singleton):
                     if is_number(self.input.display):
                         value = float(self.input.display)
                         player.points -= value
-                        bet = {"value": value * self.bet / 100, "fighter": self.fighter}
+                        bet = {
+                            "value": value * self.bet / 100,
+                            "fighter": self.fighter,
+                            "fight_id": self.fight_id,
+                            "fighter_id": self.fighter_id,
+                        }
                         self.bets.append(bet)
                         self.show = False
                         print(self.bets)
@@ -191,7 +198,7 @@ class DisplayBets:
     def __init__(self, width) -> None:
         self.width = width - 100
         self.x = width / 2
-        self.font = pygame.font.Font("consolas.ttf", 16)
+        self.font = pygame.font.Font("src/consolas.ttf", 16)
 
     def draw(self, screen, bet, id):
         y = id * 80 + 30

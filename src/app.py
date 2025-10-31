@@ -1,7 +1,7 @@
 import pygame
-from scraper import get_best_fight_odds, get_ufc_odds
-from UI import Navbar, pozycja_myszy_na_surface, Pop_up, DisplayBets
-from fight_card import Fight_Card
+from src.scraper import edited_ufc_odds, resolve
+from src.UI import Navbar, pozycja_myszy_na_surface, Pop_up, DisplayBets
+from src.fight_card import Fight_Card
 
 
 class Player:
@@ -17,9 +17,13 @@ class App:
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("UFC BET")
         self.clock = pygame.time.Clock()
-        self.fights = get_best_fight_odds()
-        self.url = "appData"
+        self.event = edited_ufc_odds(1270)
+        self.fights = self.event["fights"]
+        self.url = "src/appData"
         self.get_data_from_file()
+        self.pop_up = Pop_up()
+        self.pop_up.bets = self.group(self.file_data[2:])
+        self.update_bets()
         self.nav = Navbar(self.width, self.height)
         self.fights_box = pygame.Surface((self.width, self.height - 36))
         self.fights_box_rect = self.fights_box.get_frect(topleft=(0, 36))
@@ -30,16 +34,29 @@ class App:
         self.scroll_speed = 30
         self.fight_cards = pygame.sprite.Group()
         self.update_fight_cards()
-        self.pop_up = Pop_up()
-        self.pop_up.bets = self.group(self.file_data[2:])
         self.display_bet = DisplayBets(self.width)
+
+    def update_bets(self):
+        bets = self.pop_up.bets
+        new_bets = []
+        for bet in bets:
+            result = resolve(bet["fight_id"], bet["fighter_id"])
+            if result == 1:
+                self.player.points += float(bet["value"])
+            elif result == 0:
+                new_bets.append(bet)
+            elif result == -1:
+                pass
+        self.pop_up.bets = new_bets
 
     def group(self, data):
         bets = []
-        for idx in range(0, len(data), 2):
+        for idx in range(0, len(data), 4):
             bet = dict()
             bet["value"] = data[idx]
             bet["fighter"] = data[idx + 1]
+            bet["fight_id"] = int(data[idx + 2])
+            bet["fighter_id"] = int(data[idx + 3])
             bets.append(bet)
         return bets
 
@@ -122,6 +139,10 @@ class App:
                 f.write(str(bet["value"]))
                 f.write("|")
                 f.write(bet["fighter"])
+                f.write("|")
+                f.write(str(bet["fight_id"]))
+                f.write("|")
+                f.write(str(bet["fighter_id"]))
                 f.write("|")
 
     def update_fight_cards(self):

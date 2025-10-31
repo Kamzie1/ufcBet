@@ -1,5 +1,5 @@
 import pygame
-from UI import lButton, rButton, pozycja_myszy_na_surface, Pop_up
+from src.UI import lButton, rButton, pozycja_myszy_na_surface, Pop_up
 
 
 class Fight_Card(pygame.sprite.Sprite):
@@ -10,14 +10,18 @@ class Fight_Card(pygame.sprite.Sprite):
         self.surf = pygame.Surface((self.width, 60))
         self.y = id * 80 + 30
         self.rect = self.surf.get_frect(center=(self.x, self.y))
-        self.font = pygame.font.Font("consolas.ttf", 16)
-        self.fighter1 = fight["fighters"][0]
+        self.font = pygame.font.Font("src/consolas.ttf", 16)
+        self.fight_id = fight["id"]
+        self.date = fight["date"]
+        self.fighter1_id = fight["fighters"][0]
+        self.fighter1 = fight[self.fighter1_id]["Name"]
         self.F_fighter1 = self.font.render(self.fighter1, True, "black")
         self.bet1 = fight[self.fighter1]
         if self.bet1 is None:
             self.bet1 = "-"
         self.F_bet1 = self.font.render(str(self.bet1), True, "black")
-        self.fighter2 = fight["fighters"][1]
+        self.fighter2_id = fight["fighters"][1]
+        self.fighter2 = fight[self.fighter2_id]["Name"]
         self.F_fighter2 = self.font.render(self.fighter2, True, "black")
         self.bet2 = fight[self.fighter2]
         if self.bet2 is None:
@@ -46,9 +50,13 @@ class Fight_Card(pygame.sprite.Sprite):
             pop_up = Pop_up()
             pop_up.show = True
             pop_up.fighter = self.fighter1
+            pop_up.fighter_id = self.fighter1_id
             pop_up.bet = int(self.bet1)
+            pop_up.fight_id = self.fight_id
         elif self.button2.rect.collidepoint(mouse_pos):
             pop_up = Pop_up()
             pop_up.bet = int(self.bet2)
             pop_up.fighter = self.fighter2
+            pop_up.fighter_id = self.fighter2_id
+            pop_up.fight_id = self.fight_id
             pop_up.show = True
