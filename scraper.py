@@ -2,6 +2,11 @@ from bs4 import BeautifulSoup
 import requests
 
 
+def get_ufc_odds(event_id):
+    ufc_url = f"https://d29dxerjsp82wz.cloudfront.net/api/v3/event/live/{event_id}.json"
+    return requests.get(ufc_url).text
+
+
 def get_best_fight_odds():
     url = "https://www.bestfightodds.com/#"
     result = requests.get(url).text
@@ -15,7 +20,7 @@ def get_best_fight_odds():
 
     id = -1
     for tr in trs:
-        spans = tr.find_all("span")
+        spans = tr.find_all("span")  # type: ignore
         if len(spans) == 0:
             continue
         id += 1

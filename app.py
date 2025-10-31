@@ -1,6 +1,6 @@
 import pygame
-from scraper import get_best_fight_odds
-from UI import Navbar, pozycja_myszy_na_surface, Pop_up
+from scraper import get_best_fight_odds, get_ufc_odds
+from UI import Navbar, pozycja_myszy_na_surface, Pop_up, DisplayBets
 from fight_card import Fight_Card
 
 
@@ -31,11 +31,11 @@ class App:
         self.fight_cards = pygame.sprite.Group()
         self.update_fight_cards()
         self.pop_up = Pop_up()
-        self.pop_up.bets = self.group(self.file_data[1:])
+        self.pop_up.bets = self.group(self.file_data[2:])
+        self.display_bet = DisplayBets(self.width)
 
     def group(self, data):
         bets = []
-        print(data)
         for idx in range(0, len(data), 2):
             bet = dict()
             bet["value"] = data[idx]
@@ -62,23 +62,30 @@ class App:
             self.file_data = f.read().split("|")[:-1]
             f.close()
         except:
-            f = open(self.url, "w+")
-            f.write("1000|")
-            self.file_data = [1000]
-            f.close()
-        self.player = Player(float(self.file_data[0]))
+            self.file_data = [1284, 1000]
+        self.upcoming_event_id = int(self.file_data[0])
+        self.player = Player(float(self.file_data[1]))
 
     def run(self):
         while True:
             self.event_handler()
             self.draw()
 
+    def display_bets(self):
+        self.fights_box.fill("white")
+        for id, bet in enumerate(self.pop_up.bets):
+            self.display_bet.draw(self.fights_box, bet, id)
+        self.screen.blit(self.fights_box, self.fights_box_rect)
+
     def draw(self):
         self.screen.fill("white")
-
         self.nav.draw(self.screen, self.player)
-        self.display_fights()
-        self.pop_up.draw(self.screen)
+
+        if self.nav.show_bets:
+            self.display_bets()
+        else:
+            self.display_fights()
+            self.pop_up.draw(self.screen)
 
         pygame.display.update()
         self.clock.tick(60)
@@ -97,6 +104,7 @@ class App:
             mouse_pos = pygame.mouse.get_pos()
             self.pop_up.event(event, mouse_pos, self.player)
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                self.nav.event(mouse_pos)
                 if self.fights_box_rect.collidepoint(mouse_pos):
                     mouse_pos = pozycja_myszy_na_surface(mouse_pos, (0, 36))
                     mouse_pos = pozycja_myszy_na_surface(mouse_pos, (0, self.offset))
@@ -106,6 +114,8 @@ class App:
 
     def save_to_file(self):
         with open(self.url, "w+") as f:
+            f.write(str(self.upcoming_event_id))
+            f.write("|")
             f.write(str(self.player.points))
             f.write("|")
             for bet in self.pop_up.bets:

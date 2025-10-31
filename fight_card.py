@@ -41,7 +41,7 @@ class Fight_Card(pygame.sprite.Sprite):
         screen.blit(self.surf, self.rect)
 
     def event(self, mouse_pos):
-        mouse_pos = pozycja_myszy_na_surface(mouse_pos, (self.rect.x, self.rect.y))
+        mouse_pos = pozycja_myszy_na_surface(mouse_pos, (self.rect.x, self.rect.y))  # type: ignore
         if self.button1.rect.collidepoint(mouse_pos):
             pop_up = Pop_up()
             pop_up.show = True

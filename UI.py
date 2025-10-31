@@ -10,13 +10,25 @@ class Navbar:
         self.surf = pygame.Surface((width, 36))
         self.rect = self.surf.get_frect(topleft=(0, 0))
         self.font = pygame.font.Font("consolas.ttf", 26)
+        self.show_bets = False
+        self.fights_button = Button((5, 5), 100, 26, "blue", "Fights")
+        self.bets_button = Button((110, 5), 100, 26, "red", "Bets")
 
     def draw(self, screen, player):
         self.surf.fill("grey")
         text = self.font.render(str(player.points), True, "black")
         text_rect = text.get_frect(topright=(self.width - 5, 5))
         self.surf.blit(text, text_rect)
+        self.bets_button.draw(self.surf)
+        self.fights_button.draw(self.surf)
         screen.blit(self.surf)
+
+    def event(self, mouse_pos):
+        if self.rect.collidepoint(mouse_pos):
+            if self.bets_button.rect.collidepoint(mouse_pos):
+                self.show_bets = True
+            elif self.fights_button.rect.collidepoint(mouse_pos):
+                self.show_bets = False
 
 
 class Button:
@@ -173,3 +185,23 @@ class Pop_up(metaclass=Singleton):
 
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self.show = False
+
+
+class DisplayBets:
+    def __init__(self, width) -> None:
+        self.width = width - 100
+        self.x = width / 2
+        self.font = pygame.font.Font("consolas.ttf", 16)
+
+    def draw(self, screen, bet, id):
+        y = id * 80 + 30
+        surf = pygame.Surface((self.width, 60))
+        surf.fill("white")
+        rect = surf.get_frect(center=(self.x, y))
+        fighter = bet["fighter"]
+        F_fighter = self.font.render(fighter, True, "black")
+        bet = bet["value"]
+        F_bet = self.font.render(str(bet), True, "black")
+        surf.blit(F_fighter, F_fighter.get_frect(topleft=(5, 5)))
+        surf.blit(F_bet, F_bet.get_frect(topleft=(5, 30)))
+        screen.blit(surf, rect)
