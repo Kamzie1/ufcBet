@@ -16,6 +16,7 @@ def edited_ufc_odds(event_id):
     new_data = dict()
     new_data["id"] = data["LiveEventDetail"]["EventId"]
     new_data["event"] = data["LiveEventDetail"]["Name"]
+    new_data["date"] = data["LiveEventDetail"]["StartTime"][:10]
     new_data["fights"] = fill_odds(fights)
     return new_data
 
@@ -36,8 +37,10 @@ def fill_odds(fights):
             id += 1
             name = spans[0].text
             for idx, fight in enumerate(fights):
-                if fight.get(name):
+                if fight.get(name) and fight[name] == 100:
                     fights[idx][name] = get_bet(spans)
+                    print(name, fights[idx][name])
+    print(fights)
     return fights
 
 
@@ -60,13 +63,13 @@ def trim(fight):
         fight["Fighters"][1]["FighterId"],
     ]
     data[fight["Fighters"][0]["FighterId"]] = {
-        "Name": fight["Fighters"][0]["Name"]["FirstName"]
+        "Name": split(fight["Fighters"][0]["Name"]["FirstName"])
         + " "
         + fight["Fighters"][0]["Name"]["LastName"],
         "Odds": 100,
     }
     data[fight["Fighters"][1]["FighterId"]] = {
-        "Name": fight["Fighters"][1]["Name"]["FirstName"]
+        "Name": split(fight["Fighters"][1]["Name"]["FirstName"])
         + " "
         + fight["Fighters"][1]["Name"]["LastName"],
         "Odds": 100,
@@ -74,6 +77,23 @@ def trim(fight):
     data[data[fight["Fighters"][0]["FighterId"]]["Name"]] = 100
     data[data[fight["Fighters"][1]["FighterId"]]["Name"]] = 100
     return data
+
+
+def split(name):
+    names = ["" for znak in name if ord(znak) < 97]
+    idx = -1
+    for i in name:
+        if ord(i) < 97:
+            idx += 1
+        names[idx] += i
+    new_name = ""
+    for tekst in names:
+        new_name += tekst
+        new_name += " "
+    newName = ""
+    for znak in new_name[:-1]:
+        newName += znak
+    return newName
 
 
 def get_best_fight_odds():

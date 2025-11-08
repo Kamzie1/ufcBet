@@ -6,6 +6,8 @@ def is_number(x) -> bool:
         return True
     if not isinstance(x, str):
         return False
+    if x == "":
+        return False
     for idx, i in enumerate(x):
         if i not in cyfry:
             return False
