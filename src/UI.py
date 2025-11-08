@@ -274,8 +274,13 @@ class Pop_up(metaclass=Singleton):
                         value = float(self.input.display)
                         if player.points >= value:
                             player.points -= value
+                            if self.bet >= 0:
+                                value = int(self.bet * value / 100) + value
+                            else:
+                                value = int(value / abs(self.bet) * 100) + value
+
                             bet = {
-                                "value": value * self.bet / 100,
+                                "value": value,
                                 "fighter": self.fighter,
                                 "fight_id": self.fight_id,
                                 "fighter_id": self.fighter_id,

@@ -28,8 +28,8 @@ class Fight_Card(pygame.sprite.Sprite):
         if self.bet2 is None:
             self.bet2 = "-"
         self.F_bet2 = self.font.render(str(self.bet2), True, colors["font"])
-        self.button1 = lButton(self.bet1, (40, 30), 40, 20, text="BET")
-        self.button2 = rButton(self.bet2, (self.width - 40, 30), 40, 20, text="BET")
+        self.button1 = lButton(self.bet1, (50, 30), 40, 20, text="BET")
+        self.button2 = rButton(self.bet2, (self.width - 50, 30), 40, 20, text="BET")
 
     def draw(self, screen, colors):
         self.surf.fill(colors["screen"])

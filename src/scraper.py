@@ -44,7 +44,7 @@ def fill_odds(fights):
 
 def get_bet(spans):
     skip = ["▲", "▼", ""]
-    bets = [abs(int(span.text)) for span in spans[1:] if span.text not in skip]
+    bets = [int(span.text) for span in spans[1:] if span.text not in skip]
     if len(bets) == 0:
         bet = 100
     else:
