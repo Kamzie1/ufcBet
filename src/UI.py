@@ -270,7 +270,6 @@ class Pop_up(metaclass=Singleton):
             self.input.update(event, mouse_pos)
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 if self.confirm_button.rect.collidepoint(mouse_pos):
-                    print("click")
                     if is_number(self.input.display):
                         value = float(self.input.display)
                         if player.points >= value:
@@ -288,7 +287,6 @@ class Pop_up(metaclass=Singleton):
                             self.bets.insert(0, bet)
                             self.updated_bets = True
                             self.show = False
-                            print(self.bets)
 
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self.show = False

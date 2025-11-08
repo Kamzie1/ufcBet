@@ -39,8 +39,6 @@ def fill_odds(fights):
             for idx, fight in enumerate(fights):
                 if fight.get(name) and fight[name] == 100:
                     fights[idx][name] = get_bet(spans)
-                    print(name, fights[idx][name])
-    print(fights)
     return fights
 
 
