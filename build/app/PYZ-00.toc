@@ -1252,15 +1252,6 @@
    'C:\\Program '
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\\Lib\\pprint.py',
    'PYMODULE'),
-  ('psutil',
-   'c:\\Users\\kamil\\Documents\\GitHub\\ufcBet\\.venv\\Lib\\site-packages\\psutil\\__init__.py',
-   'PYMODULE'),
-  ('psutil._common',
-   'c:\\Users\\kamil\\Documents\\GitHub\\ufcBet\\.venv\\Lib\\site-packages\\psutil\\_common.py',
-   'PYMODULE'),
-  ('psutil._pswindows',
-   'c:\\Users\\kamil\\Documents\\GitHub\\ufcBet\\.venv\\Lib\\site-packages\\psutil\\_pswindows.py',
-   'PYMODULE'),
   ('py_compile',
    'C:\\Program '
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\\Lib\\py_compile.py',
