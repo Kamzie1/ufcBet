@@ -6,5 +6,5 @@ Feel the gambling risk without loosing a dollar.
 
 #### run
 ```
-./ufcbet/ufcbet.exe.lnk
+./ufcbet.exe.lnk
 ```
