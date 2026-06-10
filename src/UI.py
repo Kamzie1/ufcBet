@@ -1,11 +1,15 @@
 import pygame
+from typing import Tuple, List, Dict, Any, Optional, Callable
 from src.singleton import Singleton
 from src.utils import is_number
 from src.scraper import edited_ufc_odds
 
 
 class Navbar:
-    def __init__(self, width, height, DEFAULT_EVENT_ID, colors) -> None:
+    """
+    Represents the navigation bar at the top of the application.
+    """
+    def __init__(self, width: int, height: int, DEFAULT_EVENT_ID: int, colors: Dict[str, Any]) -> None:
         self.width = width
         self.height = height
         self.surf = pygame.Surface((width, 36))
@@ -28,11 +32,12 @@ class Navbar:
             100, 26, (300, 5), colors["inactive"], colors["font"], "Event Id", 16
         )
         self.view_button = Button(
-            (405, 5), 80, 26, colors["button1"], "Szukaj", colors["font"]
+            (405, 5), 80, 26, colors["button1"], "Search", colors["font"]
         )
         self.event_info = edited_ufc_odds(self.event_id)
 
-    def refresh_colors(self, colors):
+    def refresh_colors(self, colors: Dict[str, Any]) -> None:
+        """Updates the colors of the navbar elements."""
         self.fights_button = Button(
             (5, 5), 80, 26, colors["button2"], "Fights", colors["font"]
         )
@@ -46,21 +51,22 @@ class Navbar:
             100, 26, (300, 5), colors["inactive"], colors["font"], "Event Id", 16
         )
         self.view_button = Button(
-            (405, 5), 60, 26, colors["button1"], "Szukaj", colors["font"]
+            (405, 5), 60, 26, colors["button1"], "Search", colors["font"]
         )
 
     @property
-    def event_id(self):
+    def event_id(self) -> int:
         return self._event_id
 
     @event_id.setter
-    def event_id(self, value):
+    def event_id(self, value: Any) -> None:
         if is_number(value):
             self._event_id = int(value)
             self.event_info = edited_ufc_odds(self.event_id)
             self.updated_event_id = True
 
-    def draw(self, screen, player, colors):
+    def draw(self, screen: pygame.Surface, player: Any, colors: Dict[str, Any]) -> None:
+        """Draws the navbar on the screen."""
         self.surf.fill(colors["nav"])
         text = self.font.render(str(player.points), True, colors["font"])
         text_rect = text.get_frect(topright=(self.width - 5, 5))
@@ -72,7 +78,8 @@ class Navbar:
         self.view_button.draw(self.surf)
         screen.blit(self.surf)
 
-    def event(self, event, mouse_pos, update_bets):
+    def event(self, event: pygame.event.Event, mouse_pos: Tuple[int, int], update_bets: Callable) -> None:
+        """Handles events for the navbar."""
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             if self.rect.collidepoint(mouse_pos):
                 if self.bets_button.rect.collidepoint(mouse_pos):
@@ -88,8 +95,11 @@ class Navbar:
 
 
 class Button:
+    """
+    Represents a clickable button.
+    """
     def __init__(
-        self, pos, width, height, color="blue", text="", font_color="black"
+        self, pos: Tuple[int, int], width: int, height: int, color: Any = "blue", text: str = "", font_color: Any = "black"
     ) -> None:
         self.width = width
         self.height = height
@@ -101,13 +111,17 @@ class Button:
         self.r_text_rect = self.r_text.get_frect(topleft=(5, 3))
         self.rect = self.surf.get_frect(topleft=pos)
 
-    def draw(self, screen):
+    def draw(self, screen: pygame.Surface) -> None:
+        """Draws the button on the screen."""
         self.surf.fill(self.color)
         self.surf.blit(self.r_text, self.r_text_rect)
         screen.blit(self.surf, self.rect)
 
 
-def pozycja_myszy_na_surface(mouse_pos, origin):
+def get_mouse_pos_on_surface(mouse_pos: Tuple[int, int], origin: Tuple[int, int]) -> Tuple[int, int]:
+    """
+    Calculates the mouse position relative to a surface's origin.
+    """
     return (
         mouse_pos[0] - origin[0],
         mouse_pos[1] - origin[1],
@@ -115,8 +129,11 @@ def pozycja_myszy_na_surface(mouse_pos, origin):
 
 
 class rButton(Button):
+    """
+    Right-aligned button.
+    """
     def __init__(
-        self, bet, pos, width, height, color="blue", text="", font_color="black"
+        self, bet: Any, pos: Tuple[int, int], width: int, height: int, color: Any = "blue", text: str = "", font_color: Any = "black"
     ) -> None:
         super().__init__(pos, width, height, color, text, font_color)
         self.bet = bet
@@ -124,8 +141,11 @@ class rButton(Button):
 
 
 class lButton(Button):
+    """
+    Left-aligned button.
+    """
     def __init__(
-        self, bet, pos, width, height, color="blue", text="", font_color="black"
+        self, bet: Any, pos: Tuple[int, int], width: int, height: int, color: Any = "blue", text: str = "", font_color: Any = "black"
     ) -> None:
         super().__init__(pos, width, height, color, text, font_color)
         self.bet = bet
@@ -133,8 +153,11 @@ class lButton(Button):
 
 
 class cButton(Button):
+    """
+    Center-aligned button.
+    """
     def __init__(
-        self, pos, width, height, color="blue", text="", font_color="black"
+        self, pos: Tuple[int, int], width: int, height: int, color: Any = "blue", text: str = "", font_color: Any = "black"
     ) -> None:
         super().__init__(pos, width, height, color, text, font_color)
         self.rect = self.surf.get_frect(topleft=pos)
@@ -145,7 +168,10 @@ class cButton(Button):
 
 
 class Input:
-    def __init__(self, width, height, pos, color, font_color, message, size=30):
+    """
+    Represents a text input field.
+    """
+    def __init__(self, width: int, height: int, pos: Tuple[int, int], color: Any, font_color: Any, message: str, size: int = 30):
         self.surf = pygame.Surface((width, height))
         self.rect = self.surf.get_frect(topleft=pos)
         self.surf.fill(color)
@@ -157,18 +183,19 @@ class Input:
         self.active = False
 
     @property
-    def display(self):
+    def display(self) -> str:
         return self._display
 
     @display.setter
-    def display(self, value):
+    def display(self, value: str) -> None:
         self._display = value
         self.surf.fill(self.color)
         text = self.font.render(self.display, True, self.font_color)
         text_rect = text.get_rect(topleft=(5, 5))
         self.surf.blit(text, text_rect)
 
-    def update(self, event, mouse_pos):
+    def update(self, event: pygame.event.Event, mouse_pos: Tuple[int, int]) -> None:
+        """Updates the input field based on events."""
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             if self.rect.collidepoint(mouse_pos):
                 self.active = True
@@ -180,7 +207,8 @@ class Input:
             else:
                 self.display += event.unicode
 
-    def draw(self, screen, colors):
+    def draw(self, screen: pygame.Surface, colors: Dict[str, Any]) -> None:
+        """Draws the input field."""
         self.surf.fill(self.color)
         if self.active:
             pygame.draw.rect(self.surf, colors["font"], self.surf.get_rect(), 2)
@@ -195,7 +223,10 @@ class Input:
 
 
 class Pop_up(metaclass=Singleton):
-    def __init__(self, colors) -> None:
+    """
+    Represents a popup window for betting.
+    """
+    def __init__(self, colors: Dict[str, Any]) -> None:
         if hasattr(self, "_initialized"):
             return
         self._show = False
@@ -214,7 +245,7 @@ class Pop_up(metaclass=Singleton):
             "Confirm",
             colors["font"],
         )
-        self.bets = list()
+        self.bets: List[Dict[str, Any]] = list()
         self.bet = 0
         self.fight_id = 0
         self.fighter_id = 0
@@ -224,7 +255,8 @@ class Pop_up(metaclass=Singleton):
         self.resolved = False
         self.updated_bets = False
 
-    def refresh_colors(self, colors):
+    def refresh_colors(self, colors: Dict[str, Any]) -> None:
+        """Updates colors of popup elements."""
         self.input = Input(
             self.width - 10, 50, (5, 5), colors["nav"], colors["font"], "Start betting"
         )
@@ -237,7 +269,8 @@ class Pop_up(metaclass=Singleton):
             colors["font"],
         )
 
-    def draw(self, screen, colors):
+    def draw(self, screen: pygame.Surface, colors: Dict[str, Any]) -> None:
+        """Draws the popup."""
         if not self.show:
             return
         self.surf.fill(colors["screen"])
@@ -247,15 +280,16 @@ class Pop_up(metaclass=Singleton):
         pygame.draw.rect(screen, colors["font"], self.rect, 1)
 
     @property
-    def show(self):
+    def show(self) -> bool:
         return self._show
 
     @show.setter
-    def show(self, value):
+    def show(self, value: bool) -> None:
         self._show = value
         self.input._display = self.input.message
 
-    def update(self, fighter, fighter_id, bet, fight_id, event, date):
+    def update(self, fighter: str, fighter_id: int, bet: Any, fight_id: int, event: str, date: str) -> None:
+        """Updates the popup with bet details."""
         self.fighter = fighter
         self.fight_id = fight_id
         self.fighter_id = fighter_id
@@ -264,9 +298,10 @@ class Pop_up(metaclass=Singleton):
         self.bet = bet
         self.show = True
 
-    def event(self, event, mouse_pos, player):
+    def event(self, event: pygame.event.Event, mouse_pos: Tuple[int, int], player: Any) -> None:
+        """Handles events for the popup."""
         if self.rect.collidepoint(mouse_pos) and self._show:
-            mouse_pos = pozycja_myszy_na_surface(mouse_pos, (self.rect.x, self.rect.y))
+            mouse_pos = get_mouse_pos_on_surface(mouse_pos, (self.rect.x, self.rect.y))
             self.input.update(event, mouse_pos)
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 if self.confirm_button.rect.collidepoint(mouse_pos):
@@ -298,12 +333,16 @@ class Pop_up(metaclass=Singleton):
 
 
 class DisplayBets:
-    def __init__(self, width) -> None:
+    """
+    Handles displaying the list of bets.
+    """
+    def __init__(self, width: int) -> None:
         self.width = width - 100
         self.x = width / 2
         self.font = pygame.font.Font("src/consolas.ttf", 16)
 
-    def draw(self, screen, bet, id, colors):
+    def draw(self, screen: pygame.Surface, bet: Dict[str, Any], id: int, colors: Dict[str, Any]) -> None:
+        """Draws a single bet entry."""
         y = id * 80 + 50
         surf = pygame.Surface((self.width, 60))
         rect = surf.get_frect(center=(self.x, y))
@@ -329,7 +368,10 @@ class DisplayBets:
 
 
 class Notification:
-    def __init__(self, text, colors) -> None:
+    """
+    Represents a notification popup.
+    """
+    def __init__(self, text: str, colors: Dict[str, Any]) -> None:
         self._show = True
         self.width = 300
         self.height = 100
@@ -351,7 +393,8 @@ class Notification:
         self.text_box.fill(colors["screen"])
         self.text_box_rect = self.text_box.get_frect(topleft=(5, 5))
 
-    def draw(self, screen, colors):
+    def draw(self, screen: pygame.Surface, colors: Dict[str, Any]) -> None:
+        """Draws the notification."""
         if not self._show:
             return
         self.surf.fill(colors["screen"])
@@ -364,36 +407,45 @@ class Notification:
         screen.blit(self.surf, self.rect)
         pygame.draw.rect(screen, colors["font"], self.rect, 1)
 
-    def event(self, event, mouse_pos):
+    def event(self, event: pygame.event.Event, mouse_pos: Tuple[int, int]) -> bool:
+        """Handles events for the notification."""
         if self.rect.collidepoint(mouse_pos):
-            mouse_pos = pozycja_myszy_na_surface(mouse_pos, (self.rect.x, self.rect.y))
+            mouse_pos = get_mouse_pos_on_surface(mouse_pos, (self.rect.x, self.rect.y))
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 if self.confirm_button.rect.collidepoint(mouse_pos):
                     self._show = False
             return True
+        return False
 
 
 class NotificationObserver:
+    """
+    Manages multiple notifications.
+    """
     def __init__(self) -> None:
-        self.notifications = []
+        self.notifications: List[Notification] = []
 
-    def add(self, notification):
+    def add(self, notification: Notification) -> None:
+        """Adds a notification to the list."""
         self.notifications.append(notification)
 
-    def create(self, bet, result, colors):
+    def create(self, bet: Dict[str, Any], result: str, colors: Dict[str, Any]) -> None:
+        """Creates a new notification based on bet result."""
         if result == "WON":
             znak = "+"
-            text = f"{bet["fighter"]} {result} {znak}{bet["value"]}"
+            text = f"{bet['fighter']} {result} {znak}{bet['value']}"
         else:
-            text = f"{bet["fighter"]} {result}"
+            text = f"{bet['fighter']} {result}"
         self.add(Notification(text, colors))
 
-    def draw(self, screen, colors):
+    def draw(self, screen: pygame.Surface, colors: Dict[str, Any]) -> None:
+        """Draws the active notification."""
         for notification in self.notifications:
             notification.draw(screen, colors)
             break
 
-    def update(self, event, mouse_pos):
+    def update(self, event: pygame.event.Event, mouse_pos: Tuple[int, int]) -> None:
+        """Updates notifications based on events."""
         for notification in self.notifications:
             if notification.event(event, mouse_pos):
                 break
@@ -401,7 +453,8 @@ class NotificationObserver:
             notification for notification in self.notifications if notification._show
         ]
 
-    def refresh_colors(self, colors):
+    def refresh_colors(self, colors: Dict[str, Any]) -> None:
+        """Updates colors of all notifications."""
         new_notifications = []
         for notification in self.notifications:
             new_notifications.append(Notification(notification.display, colors))

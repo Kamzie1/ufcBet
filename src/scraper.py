@@ -1,14 +1,21 @@
 from bs4 import BeautifulSoup
 import requests
 import json
+from typing import List, Dict, Any, Optional, Union
 
 
-def get_ufc_odds(event_id):
+def get_ufc_odds(event_id: int) -> Dict[str, Any]:
+    """
+    Fetches UFC odds for a specific event ID from the API.
+    """
     ufc_url = f"https://d29dxerjsp82wz.cloudfront.net/api/v3/event/live/{event_id}.json"
     return json.loads(requests.get(ufc_url).text)
 
 
-def edited_ufc_odds(event_id):
+def edited_ufc_odds(event_id: int) -> Dict[str, Any]:
+    """
+    Fetches and processes UFC odds, combining API data with scraped odds.
+    """
     data = get_ufc_odds(event_id)
     fights = list()
     for fight in data["LiveEventDetail"]["FightCard"]:
@@ -21,11 +28,15 @@ def edited_ufc_odds(event_id):
     return new_data
 
 
-def fill_odds(fights):
+def fill_odds(fights: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Scrapes bestfightodds.com to fill in odds for the fights.
+    """
     url = "https://www.bestfightodds.com/#"
     result = requests.get(url).text
 
     doc = BeautifulSoup(result, "html.parser")
+    # Iterate over every second tbody, as the structure of the site alternates
     for tbody in doc.find_all("tbody")[1::2]:
         trs = tbody.contents
 
@@ -42,7 +53,10 @@ def fill_odds(fights):
     return fights
 
 
-def get_bet(spans):
+def get_bet(spans: Any) -> int:
+    """
+    Extracts the best bet value from a list of spans.
+    """
     skip = ["▲", "▼", ""]
     bets = [int(span.text) for span in spans[1:] if span.text not in skip]
     if len(bets) == 0:
@@ -52,7 +66,10 @@ def get_bet(spans):
     return bet
 
 
-def trim(fight):
+def trim(fight: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Extracts relevant fight data from the raw API response.
+    """
     data = dict()
     data["id"] = fight["FightId"]
     data["date"] = fight["CardSegmentStartTime"][:10]
@@ -77,24 +94,30 @@ def trim(fight):
     return data
 
 
-def split(name):
-    names = ["" for znak in name if ord(znak) < 97]
+def split(name: str) -> str:
+    """
+    Splits a name string based on capitalization (e.g. "JohnDoe" -> "John Doe").
+    """
+    names = ["" for char in name if ord(char) < 97]
     idx = -1
     for i in name:
         if ord(i) < 97:
             idx += 1
         names[idx] += i
     new_name = ""
-    for tekst in names:
-        new_name += tekst
+    for text in names:
+        new_name += text
         new_name += " "
-    newName = ""
-    for znak in new_name[:-1]:
-        newName += znak
-    return newName
+    final_name = ""
+    for char in new_name[:-1]:
+        final_name += char
+    return final_name
 
 
-def get_best_fight_odds():
+def get_best_fight_odds() -> List[Dict[str, Any]]:
+    """
+    Scrapes the best fight odds from bestfightodds.com.
+    """
     url = "https://www.bestfightodds.com/#"
     result = requests.get(url).text
 
@@ -137,7 +160,11 @@ def get_best_fight_odds():
     return fights
 
 
-def resolve(fight_id, fighter_id):
+def resolve(fight_id: int, fighter_id: int) -> int:
+    """
+    Resolves the outcome of a fight for a specific fighter.
+    Returns 1 if won, -1 if lost, 0 if draw/unknown.
+    """
     url = f"https://d29dxerjsp82wz.cloudfront.net/api/v3/fight/live/{fight_id}.json"
     response = json.loads(requests.get(url).text)
     fighters = response["LiveFightDetail"]["Fighters"]
