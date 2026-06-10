@@ -8,7 +8,7 @@ appData
 
 # C extensions
 *.so
-
+build/
 # Distribution / packaging
 .Python
 develop-eggs/
