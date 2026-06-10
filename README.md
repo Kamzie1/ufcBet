@@ -6,6 +6,7 @@ Feel the gambling risk without loosing a dollar.
 
 #### run precompiled with pyinstaller version
 ```
+pyinstaller --onefile --name=app src/app.py
 ./dist/app/app.exe
 ```
 
